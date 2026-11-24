@@ -140,7 +140,7 @@ def main():
     q=embed(args.query)
     try: scores, order=search(index,q,len(IDS))
     except ValueError as e: parser.error(str(e))
-    # Controlled query expansion: inject storage as a hypothesized missing concept.
+    # Controlled query expansion - inject storage as a missing concept.
     q2=q.copy(); q2[list(CONCEPTS).index('Storage')]=1
     scores2, order2=search(index,q2,len(IDS))
     print('Dimensions:', ', '.join(CONCEPTS)); print('Query:',args.query)
