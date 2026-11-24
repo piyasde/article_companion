@@ -48,9 +48,10 @@ PATTERNS = [re.compile(r'\b(?:' + '|'.join(re.escape(w) for w in words) + r')\b'
 def embed(text):
     return np.array([float(bool(p.search(text))) for p in PATTERNS])
 
-# L2 normalization applied to stored documents
+# L2 normalization applied to stored sentences
 def unit(x):
     x = np.asarray(x, dtype=float)
+    # Normalize here
     length = np.linalg.norm(x, axis=-1, keepdims=True)
     return np.divide(x, length, out=np.zeros_like(x), where=length != 0)
 
