@@ -34,7 +34,7 @@ ALPHA_IDS = {1, 2, 3, 4, 5, 12, 14}
 
 
 def normalized_32(text: str) -> np.ndarray:
-    """Encode and L2-normalize, preserving the float32 needed by FAISS."""
+    # Encode and L2-normalize 
     return np.ascontiguousarray(unit(embed(text)).astype(np.float32))
 
 
@@ -59,7 +59,7 @@ def open_store(path: Path) -> sqlite3.Connection:
 
 
 def reset_demo_store(conn: sqlite3.Connection) -> None:
-    """Repeatable seed; clears ONLY this lab's `documents` table."""
+    # Repeatable seed - clears this `documents` table.
     with conn:
         conn.execute("DELETE FROM documents")
         for i, sentence in enumerate(SENTENCES, 1):
@@ -97,7 +97,7 @@ def matrix_from_rows(rows) -> np.ndarray:
 
 
 class NumpyFlat:
-    """Exact cosine (normalized-inner-product) fallback."""
+    # Exact cosine (normalized-inner-product) fallback.
 
     def __init__(self, vectors: np.ndarray, ids: np.ndarray):
         self.vectors = vectors
@@ -126,6 +126,7 @@ def build_index(conn: sqlite3.Connection, backend: str):
 
 
 def search_global(index, conn: sqlite3.Connection, question: str, k: int = 5):
+    # Used for searching in Vector
     query = normalized_32(question)
     if np.linalg.norm(query) == 0 or index.ntotal == 0:
         return []
@@ -145,11 +146,9 @@ def search_global(index, conn: sqlite3.Connection, question: str, k: int = 5):
 
 def search_authorized_exact(conn: sqlite3.Connection, question: str,
                             owner: str, k: int = 3):
-    """Filter BEFORE searching; a teaching method for small datasets.
+    ## Filter BEFORE searching; a method for small datasets.
 
-    For production, enforce authorization at the service and storage boundaries,
-    using supported filter-aware indexes for large datasets.
-    """
+    
     rows = active_rows(conn, owner=owner)
     if not rows:
         return []
@@ -164,7 +163,7 @@ def search_authorized_exact(conn: sqlite3.Connection, question: str,
 
 
 def score_document(conn: sqlite3.Connection, doc_id: str, question: str) -> float:
-    """Score stored vector directly, including before/after an update."""
+    # Score stored vector directly, including before/after an update.
     row = conn.execute(
         "SELECT embedding FROM documents WHERE doc_id=? AND active=1", (doc_id,)
     ).fetchone()
@@ -175,7 +174,7 @@ def score_document(conn: sqlite3.Connection, doc_id: str, question: str) -> floa
 
 
 def update_document(conn: sqlite3.Connection, doc_id: str, new_content: str) -> None:
-    """SQLite is source of truth; rebuild index after updating this tiny demo."""
+    # SQLite is source of truth - rebuild index after updating the demo.
     vector = normalized_32(new_content)
     with conn:
         cur = conn.execute("""UPDATE documents
@@ -211,11 +210,6 @@ def plot_demo_results(path: Path, global_top3: list[dict],
                       postfiltered: list[dict], authorized_top3: list[dict],
                       before_s02: float, after_s02: float,
                       starting_count: int, final_count: int) -> None:
-    """All three figures referenced in Article 2, plus an optional lifecycle chart.
-
-    All plots use live calculation results from the current demo run.
-    Each image contains one simple Matplotlib chart, without subplots.
-    """
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -379,7 +373,7 @@ def demo(path: Path, backend: str, plots: bool = False) -> None:
 
 
 def benchmark(path: Path, plots: bool, n: int = 10_000, d: int = 64) -> None:
-    """Local ANN recall vs exact Flat + batched timings (synthetic random vectors)."""
+    # Local ANN recall vs exact Flat + batched timings (synthetic random vectors).
     if faiss is None:
         print("FAISS unavailable; ANN benchmark skipped. Install: pip install faiss-cpu")
         return
