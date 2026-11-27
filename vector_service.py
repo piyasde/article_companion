@@ -373,7 +373,7 @@ def demo(path: Path, backend: str, plots: bool = False) -> None:
 
 
 def benchmark(path: Path, plots: bool, n: int = 10_000, d: int = 64) -> None:
-    # Local ANN recall vs exact Flat + batched timings (synthetic random vectors).
+    # Local ANN recall vs exact Flat + batched timings (random vectors).
     if faiss is None:
         print("FAISS unavailable; ANN benchmark skipped. Install: pip install faiss-cpu")
         return
@@ -403,7 +403,7 @@ def benchmark(path: Path, plots: bool, n: int = 10_000, d: int = 64) -> None:
     clusters = min(64, max(4, n // 60))
     ivf = faiss.IndexIVFFlat(faiss.IndexFlatIP(d), d, clusters,
                              faiss.METRIC_INNER_PRODUCT)
-    # 50 points per cluster generally gives an adequate training set for this toy benchmark.
+    # 50 points per cluster gives a training set for this benchmark.
     ivf.train(vectors[:min(n, max(3000, 50 * clusters))])
     ivf.add(vectors)
 
